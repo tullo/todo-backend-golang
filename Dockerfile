@@ -4,6 +4,6 @@ COPY ./src/todo-backend .
 RUN CGO_ENABLED=0 GOOS=linux go build -a -o todo-backend .
 
 FROM alpine:3.9
-ENV PORT=80
+ENV PORT=8080
 COPY --from=builder /go/src/app/todo-backend /usr/local/bin/
 ENTRYPOINT ["todo-backend"]
