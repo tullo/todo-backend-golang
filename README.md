@@ -6,23 +6,29 @@ A backend for TodoMVC implemented with Go using no external dependencies
 
 Build the docker image with:
 
-`docker build . -t todo-backend-golang`
+`DOCKER_BUILDKIT=1 docker build -t todo-backend-golang .`
 
 ## Run Docker Container
 
 Run the docker container with:
 
-`docker run -p 8080:80 todo-backend-golang`
+`docker run --hostname todomvc.go -p 8080:8080 todo-backend-golang`
 
 Or use the pre-built image form DockerHub
 
-`docker run -p 8080:80 tullo/todo-backend-golang`
+`docker run --hostname todomvc.go -p 8080:8080 tullo/todo-backend-golang`
+
+```console
+$ cat /etc/hosts
+...
+0.0.0.0 todomvc.go
+```
 
 ## CRUD Tests
 
 ### Read (GET) response
 
-`curl -v http://localhost:8080/todos`
+`curl -v http://todomvc.go:8080/todos`
 
 ```console
 < HTTP/1.1 200 OK
@@ -34,12 +40,12 @@ Or use the pre-built image form DockerHub
 
 ### Create (POST)
 
-`curl -X POST -H 'Content-Type: application/json' -d '{"title":"Foo Bar"}' http://localhost:8080/todos/`
+`curl -X POST -H 'Content-Type: application/json' -d '{"title":"Foo Bar"}' http://todomvc.go:8080/todos/`
 
 ### Update (PATCH)
 
-`curl -X PATCH -H 'Content-Type: application/json' -d '{"completed":true}' http://localhost:8080/todos/1`
+`curl -X PATCH -H 'Content-Type: application/json' -d '{"completed":true}' http://todomvc.go:8080/todos/1`
 
 ### Delete (DELETE)
 
-`curl -X DELETE http://localhost:8080/todos/1`
+`curl -X DELETE http://todomvc.go:8080/todos/1`
