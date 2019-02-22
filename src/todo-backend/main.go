@@ -3,12 +3,14 @@ package main
 import (
 	"encoding/json"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
 )
 
+// TodoSvc mock service implementation
 var TodoSvc *MockTodoService
 
 func main() {
@@ -24,18 +26,34 @@ func main() {
 	mux.Handle("/todos", commonHandlers(todoHandler))
 	mux.Handle("/todos/", commonHandlers(todoHandler))
 
+	todoURL := GetOutboundIP().String() + ":" + port + "/todos/"
+	log.Printf("Server is ready to handle requests at %q\n", "http://"+todoURL)
 	log.Fatal(http.ListenAndServe(":"+port, mux))
 }
 
-func addUrlToTodos(r *http.Request, todos ...*Todo) {
+// GetOutboundIP will get preferred outbound IP of this machine/container.
+// Using the UDP protocol, it does not have handshake nor a connection.
+// The target does not need be there and you will receive the outbound IP
+func GetOutboundIP() net.IP {
+	conn, err := net.Dial("udp", "8.8.8.8:80")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer conn.Close()
+
+	localAddr := conn.LocalAddr().(*net.UDPAddr)
+
+	return localAddr.IP
+}
+
+func addURLToTodos(r *http.Request, todos ...*Todo) {
 	scheme := "http"
 	if r.TLS != nil {
 		scheme = "https"
 	}
-	baseUrl := scheme + "://" + r.Host + "/todos/"
-
+	baseURL := scheme + "://" + r.Host + "/todos/"
 	for _, todo := range todos {
-		todo.Url = baseUrl + strconv.Itoa(todo.Id)
+		todo.Url = baseURL + strconv.Itoa(todo.Id)
 	}
 }
 
@@ -54,7 +72,7 @@ func todoHandler(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
-			addUrlToTodos(r, todos...)
+			addURLToTodos(r, todos...)
 			json.NewEncoder(w).Encode(todos)
 		} else {
 			id, err := strconv.Atoi(key)
@@ -71,7 +89,7 @@ func todoHandler(w http.ResponseWriter, r *http.Request) {
 				http.NotFound(w, r)
 				return
 			}
-			addUrlToTodos(r, todo)
+			addURLToTodos(r, todo)
 			json.NewEncoder(w).Encode(todo)
 		}
 	case "POST":
@@ -93,7 +111,7 @@ func todoHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		addUrlToTodos(r, &todo)
+		addURLToTodos(r, &todo)
 		w.WriteHeader(http.StatusCreated)
 		json.NewEncoder(w).Encode(todo)
 	case "PATCH":
@@ -119,7 +137,7 @@ func todoHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		addUrlToTodos(r, &todo)
+		addURLToTodos(r, &todo)
 		json.NewEncoder(w).Encode(todo)
 	case "DELETE":
 		if len(key) == 0 {
