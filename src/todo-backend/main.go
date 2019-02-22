@@ -26,8 +26,13 @@ func main() {
 	mux.Handle("/todos", commonHandlers(todoHandler))
 	mux.Handle("/todos/", commonHandlers(todoHandler))
 
-	todoURL := GetOutboundIP().String() + ":" + port + "/todos/"
-	log.Printf("Server is ready to handle requests at %q\n", "http://"+todoURL)
+	todoURL := "http://"
+	hostname, _ := os.Hostname()
+	if "todomvc.go" != hostname {
+		todoURL += GetOutboundIP().String() + ":" + port + "/todos/"
+	}
+	todoURL += hostname + ":" + port + "/todos/"
+	log.Printf("Server is ready to handle requests at %q\n", todoURL)
 	log.Fatal(http.ListenAndServe(":"+port, mux))
 }
 

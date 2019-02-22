@@ -1,7 +1,5 @@
 package main
 
-import ()
-
 type Todo struct {
 	Id        int    `json:"-"`
 	Title     string `json:"title"`
