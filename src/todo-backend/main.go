@@ -40,7 +40,7 @@ func main() {
 // Using the UDP protocol, it does not have handshake nor a connection.
 // The target does not need be there and you will receive the outbound IP
 func GetOutboundIP() net.IP {
-	conn, err := net.Dial("udp", "8.8.8.8:80")
+	conn, err := net.Dial("udp", "1.1.1.1:80")
 	if err != nil {
 		log.Fatal(err)
 	}
