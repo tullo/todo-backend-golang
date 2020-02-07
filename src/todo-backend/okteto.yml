@@ -1,0 +1,17 @@
+name: todo-backend
+image: okteto/golang:1
+command:
+- bash
+workdir: /okteto
+volumes:
+- /go/pkg/
+- /root/.cache/go-build/
+environment:
+  - PORT=8080
+securityContext:
+  capabilities:
+    add:
+    - SYS_PTRACE
+forward:
+- 7070:8080
+- 2345:2345
