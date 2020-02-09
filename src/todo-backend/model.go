@@ -1,9 +1,10 @@
 package main
 
+// Todo is a structure that models todo information 
 type Todo struct {
-	Id        int    `json:"-"`
+	ID        int    `json:"-"`
 	Title     string `json:"title"`
 	Completed bool   `json:"completed"`
 	Order     int    `json:"order"`
-	Url       string `json:"url"`
+	URL       string `json:"url"`
 }

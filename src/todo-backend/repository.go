@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-// Define an interface for the data methods to support different storage types
+// TodoService defines an interface for the data methods to support different storage types
 type TodoService interface {
 	GetAll() ([]Todo, error)
 	Get(id int) (*Todo, error)
@@ -17,37 +17,41 @@ type TodoService interface {
 // MockTodoService uses a concurrent array for basic testing
 type MockTodoService struct {
 	m      sync.Mutex
-	nextId int
+	nextID int
 	Todos  []*Todo
 }
 
+// NewMockTodoService creates a mocked todo service
 func NewMockTodoService() *MockTodoService {
 	t := new(MockTodoService)
 	t.m.Lock()
 	t.Todos = make([]*Todo, 0)
-	t.nextId = 1 // Start at 1 so we can distinguish from unspecified (0)
+	t.nextID = 1 // Start at 1 so we can distinguish from unspecified (0)
 	t.m.Unlock()
 	return t
 }
 
+// GetAll returns all todos
 func (t *MockTodoService) GetAll() ([]*Todo, error) {
 	return t.Todos, nil
 }
 
+// Get returns a todo identified by id
 func (t *MockTodoService) Get(id int) (*Todo, error) {
 	for _, value := range t.Todos {
-		if value.Id == id {
+		if value.ID == id {
 			return value, nil
 		}
 	}
 	return nil, nil
 }
 
+// Save adds the todo to the repository
 func (t *MockTodoService) Save(todo *Todo) error {
-	if todo.Id == 0 { // Insert
+	if todo.ID == 0 { // Insert
 		t.m.Lock()
-		todo.Id = t.nextId
-		t.nextId++
+		todo.ID = t.nextID
+		t.nextID++
 		t.m.Unlock()
 
 		t.m.Lock()
@@ -58,7 +62,7 @@ func (t *MockTodoService) Save(todo *Todo) error {
 
 	// Update existing
 	for i, value := range t.Todos {
-		if value.Id == todo.Id {
+		if value.ID == todo.ID {
 			t.Todos[i] = todo
 			return nil
 		}
@@ -67,6 +71,7 @@ func (t *MockTodoService) Save(todo *Todo) error {
 	return fmt.Errorf("Not Found")
 }
 
+// DeleteAll deletes all todo entries
 func (t *MockTodoService) DeleteAll() error {
 	t.m.Lock()
 	t.Todos = make([]*Todo, 0)
@@ -74,9 +79,10 @@ func (t *MockTodoService) DeleteAll() error {
 	return nil
 }
 
+// Delete deletes the todo identified by id
 func (t *MockTodoService) Delete(id int) error {
 	for i, value := range t.Todos {
-		if value.Id == id {
+		if value.ID == id {
 			t.m.Lock()
 			t.Todos = append(t.Todos[:i], t.Todos[i+1:]...)
 			t.m.Unlock()
