@@ -58,7 +58,10 @@ func GetOutboundIP() net.IP {
 }
 
 func addURLToTodos(r *http.Request, todos ...*Todo) {
-	scheme := "https"
+	scheme := "http"
+	if "https" == r.Header.Get("X-Forwarded-Proto") {
+		scheme = "https"
+	}
 	if r.TLS != nil {
 		scheme = "https"
 	}
