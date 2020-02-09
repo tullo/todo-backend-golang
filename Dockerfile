@@ -1,6 +1,6 @@
 FROM golang:1.13.7-alpine3.11 as builder
 WORKDIR /go/src/app
-COPY ./src/todo-backend .
+COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -a -o todo-backend .
 
 FROM alpine:3.11
