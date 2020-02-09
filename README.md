@@ -21,7 +21,8 @@ Or use the pre-built image form DockerHub
 ```console
 $ cat /etc/hosts
 ...
-0.0.0.0 todomvc.go
+127.0.1.1       todomvc.go
+192.168.0.126   todomvc.vue
 ```
 
 ## CRUD Tests
@@ -32,19 +33,25 @@ $ cat /etc/hosts
 
 ```console
 < HTTP/1.1 200 OK
-< Access-Control-Allow-Methods: GET, POST, PATCH, DELETE
+< Access-Control-Allow-Methods: OPTIONS, GET, POST, PATCH, DELETE
 < Content-Type: application/json; charset=UTF-8
-
+...
 []
 ```
 
 ### Create (POST)
 
-`curl -X POST -H 'Content-Type: application/json' -d '{"title":"Foo Bar"}' http://todomvc.go:8080/todos/`
+```console
+curl -X POST -H 'Content-Type: application/json' \
+    -d '{"title":"Foo"}' http://todomvc.go:8080/todos/
+```
 
 ### Update (PATCH)
 
-`curl -X PATCH -H 'Content-Type: application/json' -d '{"completed":true}' http://todomvc.go:8080/todos/1`
+```console
+curl -X PATCH -H 'Content-Type: application/json' \
+    -d '{"title":"Foo","completed":true}' http://todomvc.go:8080/todos/1
+```
 
 ### Delete (DELETE)
 
