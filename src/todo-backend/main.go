@@ -20,19 +20,25 @@ func main() {
 		log.Fatal("$PORT must be set")
 	}
 
+	origins, found := os.LookupEnv("ALLOWED_ORIGINS")
+	if !found {
+		origins = "*"
+	}
+
 	TodoSvc = NewMockTodoService()
 	mux := http.NewServeMux()
 
-	mux.Handle("/todos", commonHandlers(todoHandler))
-	mux.Handle("/todos/", commonHandlers(todoHandler))
+	mux.Handle("/todos", commonHandlers(todoHandler, origins))
+	mux.Handle("/todos/", commonHandlers(todoHandler, origins))
 
 	todoURL := "http://"
 	hostname, _ := os.Hostname()
 	if "todomvc.go" != hostname {
-		todoURL += GetOutboundIP().String() + ":" + port + "/todos/"
+		hostname = GetOutboundIP().String()
 	}
 	todoURL += hostname + ":" + port + "/todos/"
 	log.Printf("Server is ready to handle requests at %q\n", todoURL)
+	log.Printf("Allowed origins %s\n", origins)
 	log.Fatal(http.ListenAndServe(":"+port, mux))
 }
 
@@ -52,13 +58,13 @@ func GetOutboundIP() net.IP {
 }
 
 func addURLToTodos(r *http.Request, todos ...*Todo) {
-	scheme := "http"
+	scheme := "https"
 	if r.TLS != nil {
 		scheme = "https"
 	}
 	baseURL := scheme + "://" + r.Host + "/todos/"
 	for _, todo := range todos {
-		todo.Url = baseURL + strconv.Itoa(todo.Id)
+		todo.URL = baseURL + strconv.Itoa(todo.ID)
 	}
 }
 
@@ -131,7 +137,7 @@ func todoHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), 422)
 			return
 		}
-		todo.Id = id
+		todo.ID = id
 
 		err = TodoSvc.Save(&todo)
 		if err != nil {

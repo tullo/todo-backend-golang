@@ -1,4 +1,6 @@
 name: todo-backend
+labels:
+  app.kubernetes.io/component: todo-backend
 image: okteto/golang:1
 command:
 - bash
@@ -7,6 +9,7 @@ volumes:
 - /go/pkg/
 - /root/.cache/go-build/
 environment:
+  - ALLOWED_ORIGINS=https://todo-frontend-tullo.cloud.okteto.net
   - PORT=8080
 securityContext:
   capabilities:
